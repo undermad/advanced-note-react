@@ -1,5 +1,5 @@
 import { COLUMNS } from "../reusable/FakeFiles.ts";
-import DragAndDrop from "../reusable/DragAndDrop.tsx";
+import NotesFiles from "../feauters/notes/NotesFiles.tsx";
 
 const Home = () => {
 
@@ -7,7 +7,7 @@ const Home = () => {
   console.log(COLUMNS);
 
   return <div className={"px-10"}>
-    <DragAndDrop />
+    <NotesFiles/>
   </div>;
 };
 
