@@ -1,5 +1,14 @@
+import { COLUMNS } from "../reusable/FakeFiles.ts";
+import DragAndDrop from "../reusable/DragAndDrop.tsx";
+
 const Home = () => {
-  return <div className={"h-10 w-10 p-9"}></div>;
+
+
+  console.log(COLUMNS);
+
+  return <div className={"px-10"}>
+    <DragAndDrop />
+  </div>;
 };
 
 export default Home;
