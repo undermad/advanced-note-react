@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
-import { fakeFiles, FolderType } from "./NoteFileSystemTypes.ts";
+import { useEffect } from "react";
 import Folder from "./Folder.tsx";
-import { useNoteFileSystemUtilities } from "./useNoteFileSystem.ts";
+import { useDispatch, useSelector } from "react-redux";
+import { selectAllNotes } from "./NoteSlice.ts";
+import { AppDispatch } from "../../state/State.ts";
 
 const NotesFiles = () => {
 
-  const [files, setFiles] = useState<FolderType>(fakeFiles);
-  const { moveFolderToTop } = useNoteFileSystemUtilities();
-  
+  const dispatch = useDispatch<AppDispatch>();
+  const notes = useSelector(selectAllNotes);
 
   useEffect(() => {
-    moveFolderToTop(files);
+    console.log(notes);
   });
 
   return <div>
-    <Folder folder={files} />
+    <Folder folder={notes.notes} />
   </div>;
 };
 

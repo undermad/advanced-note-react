@@ -7,9 +7,9 @@ type FolderProps = {
 }
 
 const Folder = ({ folder }: FolderProps) => {
-  return <div className="pl-8 pt-1">
-    <div className={"px-1 border border-green-400 w-fit flex gap-1 items-center"}>
-      <ArchiveIcon />
+  return <div className="pl-5 pt-1">
+    <div className={"px-1 flex gap-1 items-center"}>
+      <ArchiveIcon width={16} height={16} />
       {folder.name}
     </div>
     {folder.children.map(child => {

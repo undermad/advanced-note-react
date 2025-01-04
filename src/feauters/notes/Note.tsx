@@ -6,9 +6,9 @@ type NoteProps = {
 }
 
 const Note = ({ note }: NoteProps) => {
-  return <div className={"pl-1 pt-1 w-fit"}>
-    <div className={"flex gap-1 items-center px-2 border border-gray-500 rounded-lg "}>
-      <FileIcon />
+  return <div className={"cursor-pointer pl-4 pt-1 w-fit"}>
+    <div className={"flex gap-1 items-center px-2"}>
+      <FileIcon width={16} height={16} />
       {note.name}
     </div>
   </div>;
