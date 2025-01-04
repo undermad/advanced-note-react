@@ -1,13 +1,9 @@
-import { COLUMNS } from "../reusable/FakeFiles.ts";
-import NotesFiles from "../feauters/notes/NotesFiles.tsx";
+import NotesComponent from "../feauters/notes/NotesComponent.tsx";
 
 const Home = () => {
 
-
-  console.log(COLUMNS);
-
   return <div className={"px-10"}>
-    <NotesFiles/>
+    <NotesComponent/>
   </div>;
 };
 
