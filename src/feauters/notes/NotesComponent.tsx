@@ -2,7 +2,6 @@ import Folder from "./ui/Folder.tsx";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllNotes } from "./NotesFileSystemSlice.ts";
 import { AppDispatch } from "../../state/State.ts";
-// import { AppDispatch } from "../../state/State.ts";
 
 const NotesComponent = () => {
 

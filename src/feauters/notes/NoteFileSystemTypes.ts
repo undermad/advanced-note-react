@@ -8,17 +8,16 @@ export enum NoteFileSystemType {
 export type FolderType = {
   id: string,
   type: NoteFileSystemType.FOLDER,
-  parent: NoteType | FolderType | undefined,
   parentId: string | null,
   rootId: string | undefined,
   folderName: string,
   children: Array<FolderType | NoteType>
 }
 
+
 export type NoteType = {
   id: string,
   type: NoteFileSystemType.NOTE,
-  parent: NoteType | FolderType | undefined,
   parentId: string | null,
   rootId: string | undefined,
   fileName: string,
@@ -26,13 +25,18 @@ export type NoteType = {
   body: string,
 }
 
+export type NotesDto = {
+  folders: FolderDto[],
+  files: NoteType[],
+}
 
-
+export type FolderDto = {
+  children: string[]
+} & FolderType
 
 export const fakeFiles: FolderType = {
   id: uuidv4(),
   type: NoteFileSystemType.FOLDER,
-  parent: undefined,
   parentId: null,
   rootId: undefined,
   folderName: "Root",
@@ -40,7 +44,6 @@ export const fakeFiles: FolderType = {
     {
       id: uuidv4(),
       type: NoteFileSystemType.FOLDER,
-      parent: undefined,
       rootId: undefined,
       parentId: null,
       folderName: "Work Projects",
@@ -48,7 +51,6 @@ export const fakeFiles: FolderType = {
         {
           id: uuidv4(),
           type: NoteFileSystemType.FOLDER,
-          parent: undefined,
           rootId: undefined,
           parentId: null,
           folderName: "Meeting Notes",
@@ -56,7 +58,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.FOLDER,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               folderName: "Quarterly Reviews",
@@ -64,7 +65,6 @@ export const fakeFiles: FolderType = {
                 {
                   id: uuidv4(),
                   type: NoteFileSystemType.NOTE,
-                  parent: undefined,
                   rootId: undefined,
                   parentId: null,
                   fileName: "Q1 Review",
@@ -74,7 +74,6 @@ export const fakeFiles: FolderType = {
                 {
                   id: uuidv4(),
                   type: NoteFileSystemType.NOTE,
-                  parent: undefined,
                   rootId: undefined,
                   parentId: null,
                   fileName: "Q2 Review",
@@ -86,7 +85,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.NOTE,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               fileName: "Team Sync - Feb 2025",
@@ -98,7 +96,6 @@ export const fakeFiles: FolderType = {
         {
           id: uuidv4(),
           type: NoteFileSystemType.FOLDER,
-          parent: undefined,
           rootId: undefined,
           parentId: null,
           folderName: "Design Documents",
@@ -106,7 +103,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.NOTE,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               fileName: "UI Mockups",
@@ -116,7 +112,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.NOTE,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               fileName: "UX Guidelines",
@@ -128,7 +123,6 @@ export const fakeFiles: FolderType = {
         {
           id: uuidv4(),
           type: NoteFileSystemType.NOTE,
-          parent: undefined,
           rootId: undefined,
           parentId: null,
           fileName: "Project Beta Proposal",
@@ -140,7 +134,6 @@ export const fakeFiles: FolderType = {
     {
       id: uuidv4(),
       type: NoteFileSystemType.FOLDER,
-      parent: undefined,
       rootId: undefined,
       parentId: null,
       folderName: "Personal",
@@ -148,7 +141,6 @@ export const fakeFiles: FolderType = {
         {
           id: uuidv4(),
           type: NoteFileSystemType.FOLDER,
-          parent: undefined,
           rootId: undefined,
           parentId: null,
           folderName: "Health and Fitness",
@@ -156,7 +148,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.NOTE,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               fileName: "Workout Plan",
@@ -166,7 +157,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.NOTE,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               fileName: "Diet Plan",
@@ -178,7 +168,6 @@ export const fakeFiles: FolderType = {
         {
           id: uuidv4(),
           type: NoteFileSystemType.FOLDER,
-          parent: undefined,
           rootId: undefined,
           parentId: null,
           folderName: "Travel Plans",
@@ -186,7 +175,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.NOTE,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               fileName: "Winter Trip Itinerary",
@@ -196,7 +184,6 @@ export const fakeFiles: FolderType = {
             {
               id: uuidv4(),
               type: NoteFileSystemType.NOTE,
-              parent: undefined,
               rootId: undefined,
               parentId: null,
               fileName: "Packing Checklist",
@@ -208,7 +195,6 @@ export const fakeFiles: FolderType = {
         {
           id: uuidv4(),
           type: NoteFileSystemType.NOTE,
-          parent: undefined,
           rootId: undefined,
           parentId: null,
           fileName: "Books to Read",
@@ -220,7 +206,6 @@ export const fakeFiles: FolderType = {
     {
       id: uuidv4(),
       type: NoteFileSystemType.NOTE,
-      parent: undefined,
       rootId: undefined,
       parentId: null,
       fileName: "Welcome Note",

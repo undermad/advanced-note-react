@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fakeFiles, FolderType, NoteType } from "./NoteFileSystemTypes.ts";
-import axios from "axios";
+import { fakeFiles, FolderType, NotesDto } from "./NoteFileSystemTypes.ts";
+import axios, {  } from "axios";
 import { RootState } from "../../state/State.ts";
-import { assignParent, sortFoldersOnTop } from "./NotesFileSystemUtils.ts";
-
+import { mapDtoToRoot } from "./NotesFileSystemUtils.ts";
+import { Status } from "../../reusable/types/Statuses.ts";
 
 export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: string) => {
   try {
@@ -14,12 +14,7 @@ export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: st
   }
 });
 
-export enum Status {
-  IDLE = "IDLE",
-  LOADING = "LOADING",
-  SUCCEEDED = "SUCCEEDED",
-  FAILED = "FAILED",
-}
+
 
 export interface NotesState {
   notes: FolderType,
@@ -27,18 +22,11 @@ export interface NotesState {
   error: string | null,
 }
 
-
-
 const initialState: NotesState = {
   notes: fakeFiles,
   status: Status.IDLE,
   error: null
 };
-
-type NotesDto = {
-  folders: FolderType[],
-  files: NoteType[],
-}
 
 const notesSlice = createSlice({
   name: "notes",
@@ -51,19 +39,7 @@ const notesSlice = createSlice({
       })
       .addCase(fetchNotes.fulfilled, (state, action: PayloadAction<NotesDto>) => {
         state.status = Status.SUCCEEDED;
-        
-        const dto = action.payload;
-        
-        const root = dto.folders.filter(folder => folder.parentId === null);
-        
-        
-        
-        
-        console.log(root)
-        
-        
-        
-        console.log(action.payload)
+        state.notes =  mapDtoToRoot(action.payload);
       })
       .addCase(fetchNotes.rejected, (state, action) => {
         state.status = Status.FAILED;
