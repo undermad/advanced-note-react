@@ -1,6 +1,6 @@
 import Folder from "./ui/Folder.tsx";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllNotes } from "./NotesFileSystemSlice.ts";
+import { moveFolder, selectAllNotes } from "./NotesFileSystemSlice.ts";
 import { AppDispatch } from "../../state/State.ts";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 
@@ -12,15 +12,21 @@ const NotesComponent = () => {
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    console.log(active, over);
 
-    if (over === null) return;
-    
-    const itemId = active.id;
-    const containerId = over.id;
-    if(itemId === containerId) return;
-    
-    
+    if (over && over.data.current?.accepts.includes(active.data.current?.type)) {
 
+      const itemId = String(active.id);
+      const containerId = String(over.id);
+      const parentId = String(active.data.current?.parentId);
+      
+      console.log(itemId)
+      console.log(containerId)
+      console.log(parentId)
+      
+      if (itemId === containerId || parentId === containerId) return;
+      dispatch(moveFolder({ itemId: itemId, containerId: containerId, parentId: parentId }));
+    }
   };
 
 

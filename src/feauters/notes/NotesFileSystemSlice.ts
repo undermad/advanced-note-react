@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fakeFiles, FolderType, NoteFileSystemType, NotesDto, NoteType } from "./NoteFileSystemTypes.ts";
+import { fakeFiles, FolderType, NotesDto, NoteType } from "./NoteFileSystemTypes.ts";
 import axios from "axios";
 import { RootState } from "../../state/State.ts";
-import { mapDtoToRoot } from "./NotesFileSystemUtils.ts";
+import { findFolderDfs, findNoteOrFolder, mapDtoToRoot } from "./NotesFileSystemUtils.ts";
 import { Status } from "../../reusable/types/Statuses.ts";
 
 export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: string) => {
@@ -31,37 +31,26 @@ const notesSlice = createSlice({
   name: "notes",
   initialState: initialState,
   reducers: {
-    moveFolder: (state, action: PayloadAction<{ itemId: string, containerId: string }>) => {
+    moveFolder: (state, action: PayloadAction<{
+      itemId: string,
+      containerId: string,
+      parentId: string,
+    }>) => {
+      const { itemId, containerId, parentId } = action.payload;
 
-      const { itemId, containerId } = action.payload;
+      const newContainer = findFolderDfs(containerId, new Array<FolderType | NoteType>(state.notes));
+      const activeContainer = findNoteOrFolder(itemId, new Array<FolderType | NoteType>(state.notes));
+      const parentContainer = findFolderDfs(parentId, new Array<FolderType | NoteType>(state.notes));
 
-      const findNodeDfs = (nodeId: string, nodes: Array<FolderType | NoteType>): FolderType | undefined => {
-        for (const item of nodes) {
-          if (item.type !== NoteFileSystemType.FOLDER) {
-            continue;
-          }
+      if (!activeContainer) {
+        throw new Error("Can not find active object");
+      }
+      newContainer?.children.push(activeContainer);
+      parentContainer?.children.splice(parentContainer?.children.indexOf(activeContainer), 1);
+      activeContainer.parentId = containerId;
 
-          if (item.id === nodeId) {
-            return item as FolderType;
-          }
 
-          const result = findNodeDfs(nodeId, (item as FolderType).children);
-          if (result) {
-            return result;
-          }
-        }
-        return undefined;
-      };
-
-      const container = findNodeDfs(itemId, new Array<FolderType>(state.notes));
-      
-      
-      
-      
-      
     }
-
-
   },
   extraReducers(builder) {
     builder
@@ -83,5 +72,7 @@ const notesSlice = createSlice({
 export const selectAllNotes = (state: RootState) => state.notes;
 export const selectNotesStatus = (state: RootState) => state.notes.status;
 export const selectNotesError = (state: RootState) => state.notes.error;
+
+export const { moveFolder } = notesSlice.actions;
 
 export default notesSlice.reducer;

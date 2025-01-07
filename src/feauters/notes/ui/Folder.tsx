@@ -8,13 +8,24 @@ type FolderProps = {
 }
 
 const Folder = ({ folder }: FolderProps) => {
-  const { setNodeRef: setDroppableNodeRef } = useDroppable({ id: folder.id });
+  const { setNodeRef: setDroppableNodeRef } = useDroppable({
+    id: folder.id,
+    data: {
+      accepts: ['FolderType', 'NoteType']
+    }
+  });
   const {
     setNodeRef: setDraggableNodeRef,
     attributes,
     listeners,
     transform
-  } = useDraggable({ id: folder.id });
+  } = useDraggable({
+    id: folder.id,
+    data: {
+      type: 'FolderType',
+      parentId: folder.parentId,
+    }
+  });
 
   const combinedRef = (node: HTMLElement | null) => {
     setDroppableNodeRef(node);

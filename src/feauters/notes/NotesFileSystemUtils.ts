@@ -48,6 +48,68 @@ export const mapDtoToRoot = (data: NotesDto): FolderType => {
 
   const root = foldersMap.get(rootId);
   if (!root) throw new Error("Root doesn't exist");
-  
+
   return root;
 };
+
+export const findFolderDfs = (nodeId: string, nodes: Array<FolderType | NoteType>): FolderType | undefined => {
+  for (const item of nodes) {
+    if (item.type !== NoteFileSystemType.FOLDER) {
+      continue;
+    }
+
+    if (item.id === nodeId) {
+      return item as FolderType;
+    }
+
+    const result = findFolderDfs(nodeId, (item as FolderType).children);
+    if (result) {
+      return result;
+    }
+  }
+  return undefined;
+};
+
+export const findNoteDfs = (nodeId: string, nodes: Array<FolderType | NoteType>): NoteType | undefined => {
+  if (!Array.isArray(nodes)) {
+    return undefined;
+  }
+  
+  for (const item of nodes) {
+    if (item.id === nodeId) {
+      return item as NoteType;
+    }
+
+    if (item.type === NoteFileSystemType.NOTE) {
+      continue;
+    }
+
+    const result = findNoteDfs(nodeId, (item as FolderType).children);
+    if (result) {
+      return result;
+    }
+  }
+  return undefined;
+};
+
+export const findNoteOrFolder = (nodeId: string, nodes: Array<FolderType | NoteType>): NoteType | FolderType | undefined => {
+  const folder = findFolderDfs(nodeId, nodes);
+  if (folder) {
+    return folder;
+  } 
+  const result = findNoteDfs(nodeId, nodes);
+  if (result) {
+    return result;
+  }
+  return undefined;
+}
+// export const assignParent = (folder: FolderType, parent: FolderType) => {
+//   folder.children.forEach(child => {
+//     if (child.type === NoteFileSystemType.FOLDER) {
+//       child.parent = parent;
+//       assignParent(child, parent);
+//     } else if (child.type === NoteFileSystemType.NOTE) {
+//       child.parent = parent;
+//     }
+//   });
+// };
