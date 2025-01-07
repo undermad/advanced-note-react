@@ -42,14 +42,9 @@ const notesSlice = createSlice({
       const activeContainer = findNoteOrFolder(itemId, new Array<FolderType | NoteType>(state.notes));
       const parentContainer = findFolderDfs(parentId, new Array<FolderType | NoteType>(state.notes));
 
-      if (!activeContainer) {
-        throw new Error("Can not find active object");
-      }
       newContainer?.children.push(activeContainer);
       parentContainer?.children.splice(parentContainer?.children.indexOf(activeContainer), 1);
       activeContainer.parentId = containerId;
-
-
     }
   },
   extraReducers(builder) {

@@ -20,10 +20,6 @@ const NotesComponent = () => {
       const containerId = String(over.id);
       const parentId = String(active.data.current?.parentId);
       
-      console.log(itemId)
-      console.log(containerId)
-      console.log(parentId)
-      
       if (itemId === containerId || parentId === containerId) return;
       dispatch(moveFolder({ itemId: itemId, containerId: containerId, parentId: parentId }));
     }

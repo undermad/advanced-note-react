@@ -92,7 +92,7 @@ export const findNoteDfs = (nodeId: string, nodes: Array<FolderType | NoteType>)
   return undefined;
 };
 
-export const findNoteOrFolder = (nodeId: string, nodes: Array<FolderType | NoteType>): NoteType | FolderType | undefined => {
+export const findNoteOrFolder = (nodeId: string, nodes: Array<FolderType | NoteType>): NoteType | FolderType => {
   const folder = findFolderDfs(nodeId, nodes);
   if (folder) {
     return folder;
@@ -101,7 +101,7 @@ export const findNoteOrFolder = (nodeId: string, nodes: Array<FolderType | NoteT
   if (result) {
     return result;
   }
-  return undefined;
+  throw new Error(`Can not find object with id ${nodeId}`);
 }
 // export const assignParent = (folder: FolderType, parent: FolderType) => {
 //   folder.children.forEach(child => {
