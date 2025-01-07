@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fakeFiles, FolderType, NotesDto } from "./NoteFileSystemTypes.ts";
-import axios, {  } from "axios";
+import { fakeFiles, FolderType, NoteFileSystemType, NotesDto, NoteType } from "./NoteFileSystemTypes.ts";
+import axios from "axios";
 import { RootState } from "../../state/State.ts";
 import { mapDtoToRoot } from "./NotesFileSystemUtils.ts";
 import { Status } from "../../reusable/types/Statuses.ts";
@@ -13,7 +13,6 @@ export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: st
     return Promise.reject(error);
   }
 });
-
 
 
 export interface NotesState {
@@ -31,7 +30,39 @@ const initialState: NotesState = {
 const notesSlice = createSlice({
   name: "notes",
   initialState: initialState,
-  reducers: {},
+  reducers: {
+    moveFolder: (state, action: PayloadAction<{ itemId: string, containerId: string }>) => {
+
+      const { itemId, containerId } = action.payload;
+
+      const findNodeDfs = (nodeId: string, nodes: Array<FolderType | NoteType>): FolderType | undefined => {
+        for (const item of nodes) {
+          if (item.type !== NoteFileSystemType.FOLDER) {
+            continue;
+          }
+
+          if (item.id === nodeId) {
+            return item as FolderType;
+          }
+
+          const result = findNodeDfs(nodeId, (item as FolderType).children);
+          if (result) {
+            return result;
+          }
+        }
+        return undefined;
+      };
+
+      const container = findNodeDfs(itemId, new Array<FolderType>(state.notes));
+      
+      
+      
+      
+      
+    }
+
+
+  },
   extraReducers(builder) {
     builder
       .addCase(fetchNotes.pending, (state) => {
@@ -39,7 +70,7 @@ const notesSlice = createSlice({
       })
       .addCase(fetchNotes.fulfilled, (state, action: PayloadAction<NotesDto>) => {
         state.status = Status.SUCCEEDED;
-        state.notes =  mapDtoToRoot(action.payload);
+        state.notes = mapDtoToRoot(action.payload);
       })
       .addCase(fetchNotes.rejected, (state, action) => {
         state.status = Status.FAILED;
