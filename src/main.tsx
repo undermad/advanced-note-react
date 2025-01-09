@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "./state/State.ts";
 import { fetchNotes } from "./feauters/notes/NotesFileSystemSlice.ts";
 
-store.dispatch(fetchNotes("71adab32-ce6a-4978-b314-7bac7cedefaa"));
+store.dispatch(fetchNotes("cf063165-693d-47a9-823e-f3779306de6c"));
 
 
 createRoot(document.getElementById("root")!).render(

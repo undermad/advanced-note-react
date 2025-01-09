@@ -41,6 +41,7 @@ const notesSlice = createSlice({
       const newContainer = findFolderDfs(containerId, new Array<FolderType | NoteType>(state.notes));
       const activeContainer = findNoteOrFolder(itemId, new Array<FolderType | NoteType>(state.notes));
       const parentContainer = findFolderDfs(parentId, new Array<FolderType | NoteType>(state.notes));
+      
 
       newContainer?.children.push(activeContainer);
       parentContainer?.children.splice(parentContainer?.children.indexOf(activeContainer), 1);

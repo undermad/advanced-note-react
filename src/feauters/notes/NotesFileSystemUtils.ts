@@ -103,6 +103,11 @@ export const findNoteOrFolder = (nodeId: string, nodes: Array<FolderType | NoteT
   }
   throw new Error(`Can not find object with id ${nodeId}`);
 }
+
+
+
+
+
 // export const assignParent = (folder: FolderType, parent: FolderType) => {
 //   folder.children.forEach(child => {
 //     if (child.type === NoteFileSystemType.FOLDER) {

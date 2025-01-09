@@ -1,59 +1,77 @@
 import { FolderType, NoteFileSystemType } from "../NoteFileSystemTypes.ts";
 import Note from "./Note.tsx";
 import { ArchiveIcon } from "@radix-ui/react-icons";
-import { useDraggable, useDroppable } from "@dnd-kit/core";
+import Draggable from "../../../reusable/types/Draggable.tsx";
+import Droppable from "../../../reusable/types/Droppable.tsx";
 
 type FolderProps = {
   folder: FolderType
 }
 
 const Folder = ({ folder }: FolderProps) => {
-  const { setNodeRef: setDroppableNodeRef } = useDroppable({
-    id: folder.id,
-    data: {
-      accepts: ['FolderType', 'NoteType']
-    }
-  });
-  const {
-    setNodeRef: setDraggableNodeRef,
-    attributes,
-    listeners,
-    transform
-  } = useDraggable({
-    id: folder.id,
-    data: {
-      type: 'FolderType',
-      parentId: folder.parentId,
-    }
-  });
+  // const { setNodeRef } = useDroppable({
+  //   id: folder.id,
+  //   data: {
+  //     accepts: ["FolderType", "NoteType"]
+  //   }
+  // });
 
-  const combinedRef = (node: HTMLElement | null) => {
-    setDroppableNodeRef(node);
-    setDraggableNodeRef(node);
-  };
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`
-  } : undefined;
+  // const combinedRef = (node: HTMLElement | null) => {
+  //   setDroppableNodeRef(node);
+  //   setDraggableNodeRef(node);
+  // };
 
-  return <div ref={combinedRef}
-              {...attributes}
-              {...listeners}
-              className="pl-5 pt-1"
-              style={style}
-  >
-    <div className={"px-1 flex gap-1 items-center"}>
-      <ArchiveIcon width={16} height={16} />
-      {folder.folderName}
-    </div>
-    {folder.children.map(child => {
-      if (child.type === NoteFileSystemType.FOLDER) {
-        return <Folder key={child.id} folder={child} />;
-      } else {
-        return <Note key={child.id} note={child} />;
-      }
-    })}
-  </div>;
+
+  return (
+    <Droppable args={{ id: folder.id, data: { accepts: ["FolderType", "NoteType"] } }}>
+      <div className="pl-5 pt-1">
+        <div className={"px-1 flex gap-1 items-center"}>
+          <ArchiveIcon width={16} height={16} />
+          {folder.folderName}
+        </div>
+        
+        {renderChildren(folder)}
+
+      </div>
+    </Droppable>
+
+  );
+
 };
 
 export default Folder;
+
+const renderChildren = (folder: FolderType) => {
+  return <>
+    {folder.children.map(child => {
+      if (child.type === NoteFileSystemType.FOLDER) {
+        return (
+          <Draggable
+            args={{
+              id: child.id, data: {
+                parentId: child.parentId,
+                type: "FolderType"
+              }
+            }}
+            key={child.id}>
+            <Folder folder={child} />
+          </Draggable>
+
+        );
+      } else {
+        return <Draggable
+          args={{
+            id: child.id,
+            data: {
+              parentId: child.parentId,
+              type: 'NoteType',
+            }
+          }}
+          key={child.id}>
+        <Note key={child.id} note={child} />
+        </Draggable>
+      }
+    })}
+  </>;
+};
