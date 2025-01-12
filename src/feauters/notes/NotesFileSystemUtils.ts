@@ -1,6 +1,6 @@
-import { FolderType, NoteFileSystemType, NotesDto, NoteType } from "./NoteFileSystemTypes.ts";
+import { FolderNode, NoteFileSystemType, NoteNode, NotesDto, TreeNode } from "./NoteFileSystemTypes.ts";
 
-export const sortFoldersOnTop = (folder: FolderType): FolderType => {
+export const sortFoldersOnTop = (folder: FolderNode): FolderNode => {
   folder.children.sort((a, b) => {
     if (a.type === NoteFileSystemType.FOLDER && b.type !== NoteFileSystemType.FOLDER) {
       return -1;
@@ -13,16 +13,16 @@ export const sortFoldersOnTop = (folder: FolderType): FolderType => {
 
   folder.children.forEach(child => {
     if (child.type === NoteFileSystemType.FOLDER) {
-      sortFoldersOnTop(child as FolderType);
+      sortFoldersOnTop(child as FolderNode);
     }
   });
 
   return folder;
 };
 
-export const mapDtoToRoot = (data: NotesDto): FolderType => {
-  const foldersMap = new Map<string, FolderType>;
-  const filesMap = new Map<string, NoteType>;
+export const mapDtoToRoot = (data: NotesDto): FolderNode => {
+  const foldersMap = new Map<string, FolderNode>;
+  const filesMap = new Map<string, NoteNode>;
 
   data.folders.forEach(folder => foldersMap.set(folder.id, { ...folder, children: [] }));
   data.files.forEach(file => filesMap.set(file.id, file));
@@ -49,63 +49,77 @@ export const mapDtoToRoot = (data: NotesDto): FolderType => {
   const root = foldersMap.get(rootId);
   if (!root) throw new Error("Root doesn't exist");
 
+  console.log(root);
   return root;
 };
 
-export const findFolderDfs = (nodeId: string, nodes: Array<FolderType | NoteType>): FolderType | undefined => {
-  for (const item of nodes) {
-    if (item.type !== NoteFileSystemType.FOLDER) {
-      continue;
-    }
+export const assignDepth = (node: TreeNode, depth: number) => {
+  node.depth = depth;
+  if (node.type === NoteFileSystemType.FOLDER) {
+    const folderNode = node as FolderNode;
+    folderNode.children.forEach(child => {
+      assignDepth(child, depth + 1);
+    });
+  }
+};
 
-    if (item.id === nodeId) {
-      return item as FolderType;
-    }
 
-    const result = findFolderDfs(nodeId, (item as FolderType).children);
-    if (result) {
-      return result;
+export const findFolderDfs = (node: FolderNode, id: string): FolderNode | undefined => {
+  if (node.id === id) return node;
+  for (const child of node.children) {
+    if (child.type === NoteFileSystemType.FOLDER) {
+      const result = findFolderDfs(child as FolderNode, id);
+      if (result) return result;
     }
   }
   return undefined;
 };
 
-export const findNoteDfs = (nodeId: string, nodes: Array<FolderType | NoteType>): NoteType | undefined => {
-  if (!Array.isArray(nodes)) {
-    return undefined;
-  }
-  
-  for (const item of nodes) {
-    if (item.id === nodeId) {
-      return item as NoteType;
-    }
-
-    if (item.type === NoteFileSystemType.NOTE) {
-      continue;
-    }
-
-    const result = findNoteDfs(nodeId, (item as FolderType).children);
-    if (result) {
-      return result;
+export const findNoteDfs = (node: TreeNode, id: string): NoteNode | undefined => {
+  if (node.type === NoteFileSystemType.NOTE && node.id === id) return node as NoteNode;
+  if (node.type === NoteFileSystemType.FOLDER) {
+    const folderNode = node as FolderNode;
+    for (const child of folderNode.children) {
+      if (child.type === NoteFileSystemType.NOTE && child.id === id) return child as NoteNode;
+      if (child.type === NoteFileSystemType.FOLDER) {
+        const result = findNoteDfs(child as FolderNode, id);
+        if (result) return result;
+      }
     }
   }
   return undefined;
 };
 
-export const findNoteOrFolder = (nodeId: string, nodes: Array<FolderType | NoteType>): NoteType | FolderType => {
-  const folder = findFolderDfs(nodeId, nodes);
-  if (folder) {
-    return folder;
-  } 
-  const result = findNoteDfs(nodeId, nodes);
-  if (result) {
-    return result;
+export const findNoteOrFolder = (node: FolderNode, id: string, type: NoteFileSystemType) => {
+  if (type === NoteFileSystemType.FOLDER) {
+    return findFolderDfs(node, id);
+  } else if (type === NoteFileSystemType.NOTE) {
+    return findNoteDfs(node, id);
   }
-  throw new Error(`Can not find object with id ${nodeId}`);
-}
+};
 
 
+export const findAllChildrenIds = (node: TreeNode, children: Set<string>) => {
+  if (node.type == NoteFileSystemType.FOLDER) {
+    const folderNode = node as FolderNode;
+    folderNode.children.forEach((child) => {
+      children.add(child.id);
+      findAllChildrenIds(child, children);
+    });
+  }
+  return children;
+};
 
+export const flattenTree = (node: TreeNode, items: TreeNode[]) => {
+  if (node.type == NoteFileSystemType.FOLDER) {
+    const folderNode = node as FolderNode;
+    folderNode.children.forEach((item) => {
+      items.push(item);
+      flattenTree(item, items);
+    });
+  }
+  return items;
+};
 
 
 // export const assignParent = (folder: FolderType, parent: FolderType) => {

@@ -1,9 +1,9 @@
-import NotesComponent from "../feauters/notes/NotesComponent.tsx";
+import TreeComponent from "../feauters/notes/aa/TreeComponent.tsx";
 
 const Home = () => {
 
   return <div className={"px-10"}>
-    <NotesComponent/>
+    <TreeComponent/>
   </div>;
 };
 

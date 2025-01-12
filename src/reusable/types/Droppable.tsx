@@ -8,7 +8,8 @@ interface Props {
 
 const Droppable = ({ children,  args }: Props) => {
   const { setNodeRef } = useDroppable({ ...args });
-
+  
+  
   return <div ref={setNodeRef}>
     {children}
   </div>;
