@@ -2,7 +2,7 @@ import TreeComponent from "../feauters/notes/aa/TreeComponent.tsx";
 
 const Home = () => {
 
-  return <div className={"px-10"}>
+  return <div className={"mt-10 ml-5"}>
     <TreeComponent/>
   </div>;
 };

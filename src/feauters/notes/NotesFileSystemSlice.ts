@@ -4,7 +4,9 @@ import axios from "axios";
 import { RootState } from "../../state/State.ts";
 import {
   assignDepth,
-  findFolderDfs, findNoteOrFolder,
+  findFolderDfs,
+  findNoteOrFolder,
+  flatTreeInAlphabeticalOrder,
   mapDtoToRoot
 } from "./NotesFileSystemUtils.ts";
 import { Status } from "../../reusable/types/Statuses.ts";
@@ -20,13 +22,15 @@ export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: st
 
 
 export interface NotesState {
-  root: FolderNode,
+  notes: TreeNode[],
+  root: FolderNode
   status: Status,
   error: string | null,
 }
 
 const initialState: NotesState = {
-  root: {
+  notes: [], 
+  root:  {
     id: "",
     type: NoteFileSystemType.FOLDER,
     parentId: null,
@@ -54,7 +58,7 @@ const notesSlice = createSlice({
       const parentNode = findFolderDfs(state.root, active.parentId);
       const activeNode = findNoteOrFolder(state.root, active.id, active.type);
       const overNode = findFolderDfs(state.root, over.id);
-      if (!parentNode || !activeNode || !overNode || !overNode.depth) return;
+      if (!parentNode || !activeNode || !overNode || overNode.depth === undefined) return;
 
       parentNode.children = parentNode.children.filter(child => child.id !== active.id);
 
@@ -66,6 +70,7 @@ const notesSlice = createSlice({
 
       assignDepth(updatedActiveNode, updatedActiveNode.depth);
       overNode.children = [...overNode.children, updatedActiveNode];
+      state.notes = flatTreeInAlphabeticalOrder(state.root, []);
     }
   },
   extraReducers(builder) {
@@ -78,6 +83,7 @@ const notesSlice = createSlice({
         const root = mapDtoToRoot(action.payload);
         assignDepth(root, 0);
         state.root = root;
+        state.notes = flatTreeInAlphabeticalOrder(root, []);
       })
       .addCase(fetchNotes.rejected, (state, action) => {
         state.status = Status.FAILED;

@@ -9,7 +9,7 @@ type Props = {
 }
 
 const TreeContent = ({ items }: Props) => {
-  
+
   return <>
     {items.length > 0 && renderChildren(items)}
   </>;

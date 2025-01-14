@@ -110,25 +110,28 @@ export const findAllChildrenIds = (node: TreeNode, children: Set<string>) => {
   return children;
 };
 
-export const flattenTree = (node: TreeNode, items: TreeNode[]) => {
+export const flatTreeInAlphabeticalOrder = (node: TreeNode, items: TreeNode[]) => {
+  items.push(node);
   if (node.type == NoteFileSystemType.FOLDER) {
     const folderNode = node as FolderNode;
-    folderNode.children.forEach((item) => {
-      items.push(item);
-      flattenTree(item, items);
+
+    const folders = folderNode.children.filter(item => item.type === NoteFileSystemType.FOLDER)
+      .map(folder => folder as FolderNode)
+      .sort((a, b) => a.folderName < b.folderName ? -1 : 1);
+
+    const notes = folderNode.children.filter(item => item.type === NoteFileSystemType.NOTE)
+      .map(note => note as NoteNode)
+      .sort((a, b) => a.fileName < b.fileName ? -1 : 1);
+
+    folders.forEach((item) => {
+      flatTreeInAlphabeticalOrder(item, items);
+    });
+    
+    notes.forEach((item) => {
+      flatTreeInAlphabeticalOrder(item, items);
     });
   }
   return items;
 };
 
 
-// export const assignParent = (folder: FolderType, parent: FolderType) => {
-//   folder.children.forEach(child => {
-//     if (child.type === NoteFileSystemType.FOLDER) {
-//       child.parent = parent;
-//       assignParent(child, parent);
-//     } else if (child.type === NoteFileSystemType.NOTE) {
-//       child.parent = parent;
-//     }
-//   });
-// };

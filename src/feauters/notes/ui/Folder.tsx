@@ -7,7 +7,7 @@ type Props = {
 
 const Folder = ({ folder }: Props) => {
 
-  if (!folder || !folder.depth) {
+  if (!folder || folder.depth === undefined) {
     return null;
   }
   
