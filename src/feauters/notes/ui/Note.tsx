@@ -1,5 +1,5 @@
 import { NoteNode } from "../NoteFileSystemTypes.ts";
-import { FileIcon } from "@radix-ui/react-icons";
+import { CiFileOn } from "react-icons/ci";
 
 type NoteProps = {
   note: NoteNode
@@ -12,12 +12,13 @@ const Note = ({ note }: NoteProps) => {
   }
 
   const style = {
-    marginLeft: note.depth * 20
+    marginLeft: note.depth * 20,
+    opacity: note.isDragging ? 0.5 : 1,
+    transition: '0.1s ease-in',
   }
 
-
-  return <div className={`flex gap-1 items-center`} style={style}>
-    <FileIcon width={16} height={16} />
+  return <div className={`pl-2 flex gap-1 items-center text-sm`} style={style}>
+    <CiFileOn width={12} height={12} />
     {note.fileName}
   </div>;
 };

@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { moveNode, selectAllNotes } from "../NotesFileSystemSlice.ts";
+import { moveNode, moveNodesAsync, selectAllNotes, updateDragging } from "../NotesFileSystemSlice.ts";
 import { DndContext, DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import TreeContent from "./TreeContent.tsx";
 import { FolderNode, TreeNode } from "../NoteFileSystemTypes.ts";
@@ -20,22 +20,26 @@ const TreeComponent = () => {
     const node = root.notes.find(item => item.id === active.id);
     if (!node) return;
 
+    dispatch(updateDragging({ nodeId: node.id, isDragging: true }));
     setActiveNode(node);
   };
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    dispatch(updateDragging({ nodeId: String(active.id), isDragging: false }));
 
-    const activeNode = root.notes.find(item => item.id === active.id);
+    const activeNode = root.notes.find(item => item.id === active.id)!;
     const overNode = root.notes.find(item => item.id === over?.id);
-    if (!overNode || !activeNode || activeNode?.id === overNode.id) return;
+    if (!overNode || activeNode?.id === overNode.id) return;
+    
 
     const activeNodeChildren = findAllChildrenIds(activeNode, new Set<string>());
 
     if (activeNodeChildren.has(overNode.id)) {
       return;
     }
-
+    
+    // dispatch(moveNodesAsync({active: activeNode, over: overNode}))
     dispatch(moveNode({ active: activeNode, over: overNode as FolderNode }));
   };
 
@@ -44,7 +48,7 @@ const TreeComponent = () => {
     onDragStart={handleOnDragStart}
   >
     <TreeContent items={root.notes} />
-    <DndOverlay activeNode={activeNode}/>
+    <DndOverlay activeNode={activeNode} />
   </DndContext>;
 };
 

@@ -8,12 +8,14 @@ interface Props {
 
 const Droppable = ({ children, args }: Props) => {
   const { setNodeRef, isOver } = useDroppable({ ...args });
-
+  
+  
   const style = {
-    border: isOver ? "2px solid green" : "2px solid transparent",
-    borderRadius: "8px", // Makes the border nice and rounded
-    transition: "border 0.3s ease" // Smooth transition when `isOver` changes
-  } ;
+    border: isOver ? "1px dashed green" : "1px solid transparent",
+    backgroundColor: isOver ? "rgba(0, 255, 0, 0.1)" : "transparent",
+    boxShadow: isOver ? "0 1px 4px rgba(0, 255, 0, 0.3)" : "none",
+    transition: "all 0.3s ease",
+  };
 
   return <div style={style} ref={setNodeRef}>
     {children}

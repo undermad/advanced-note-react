@@ -3,11 +3,11 @@ import { FolderNode, NoteFileSystemType, NotesDto, TreeNode } from "./NoteFileSy
 import axios from "axios";
 import { RootState } from "../../state/State.ts";
 import {
-  assignDepth,
+  assignProperties,
   findFolderDfs,
   findNoteOrFolder,
   flatTreeInAlphabeticalOrder,
-  mapDtoToRoot
+  mapDtoToRoot, mapToDto
 } from "./NotesFileSystemUtils.ts";
 import { Status } from "../../reusable/types/Statuses.ts";
 
@@ -21,6 +21,28 @@ export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: st
 });
 
 
+export type MoveNodesAsyncPayload = {
+  active: TreeNode,
+  over: TreeNode
+}
+
+export const moveNodesAsync = createAsyncThunk("notes/moveNodes", async (payload: MoveNodesAsyncPayload) => {
+  // try {
+  //
+  //   const activeNode = mapToDto(payload.active);
+  //   const overNode = mapToDto(payload.over);
+  //
+  //   const response = await axios.patch(`http://localhost:8080/api/v1/notes`, {
+  //     active: activeNode,
+  //     over: overNode
+  //   });
+  //   return response.data;
+  // } catch (error) {
+  //   return Promise.reject(error);
+  // }
+});
+
+
 export interface NotesState {
   notes: TreeNode[],
   root: FolderNode
@@ -29,14 +51,15 @@ export interface NotesState {
 }
 
 const initialState: NotesState = {
-  notes: [], 
-  root:  {
+  notes: [],
+  root: {
     id: "",
     type: NoteFileSystemType.FOLDER,
     parentId: null,
     rootId: undefined,
     depth: undefined,
     folderName: "Root",
+    isDragging: false,
     children: []
   },
   status: Status.IDLE,
@@ -68,9 +91,14 @@ const notesSlice = createSlice({
         depth: overNode.depth + 1
       };
 
-      assignDepth(updatedActiveNode, updatedActiveNode.depth);
+      assignProperties(updatedActiveNode, updatedActiveNode.depth);
       overNode.children = [...overNode.children, updatedActiveNode];
+      
       state.notes = flatTreeInAlphabeticalOrder(state.root, []);
+    },
+    updateDragging: (state, action: PayloadAction<{ nodeId: string, isDragging: boolean, }>) => {
+      const node = state.notes.find(note => note.id === action.payload.nodeId)!;
+      node.isDragging = action.payload.isDragging;
     }
   },
   extraReducers(builder) {
@@ -81,13 +109,25 @@ const notesSlice = createSlice({
       .addCase(fetchNotes.fulfilled, (state, action: PayloadAction<NotesDto>) => {
         state.status = Status.SUCCEEDED;
         const root = mapDtoToRoot(action.payload);
-        assignDepth(root, 0);
+        assignProperties(root, 0);
         state.root = root;
         state.notes = flatTreeInAlphabeticalOrder(root, []);
       })
       .addCase(fetchNotes.rejected, (state, action) => {
         state.status = Status.FAILED;
         state.error = action.error.message || "Failed to fetch notes";
+      })
+
+      .addCase(moveNodesAsync.pending, (state) => {
+        state.status = Status.LOADING;
+      })
+      .addCase(moveNodesAsync.rejected, (state, action) => {
+        state.status = Status.FAILED;
+        state.error = action.error.message || "Failed to move data";
+      })
+      .addCase(moveNodesAsync.fulfilled, (state, action: PayloadAction<string>) => {
+        state.status = Status.SUCCEEDED;
+        console.log(action.payload);
       });
   }
 });
@@ -97,6 +137,6 @@ export const selectAllNotes = (state: RootState) => state.notes;
 export const selectNotesStatus = (state: RootState) => state.notes.status;
 export const selectNotesError = (state: RootState) => state.notes.error;
 
-export const { moveNode } = notesSlice.actions;
+export const { moveNode, updateDragging } = notesSlice.actions;
 
 export default notesSlice.reducer;

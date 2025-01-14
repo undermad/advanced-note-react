@@ -10,6 +10,7 @@ export type TreeNode = {
   parentId: string | null,
   rootId: string | undefined,
   depth: number | undefined,
+  isDragging: boolean,
 }
 
 export type FolderNode = TreeNode & {

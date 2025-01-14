@@ -1,5 +1,5 @@
 import { FolderNode } from "../NoteFileSystemTypes.ts";
-import { ArchiveIcon } from "@radix-ui/react-icons";
+import { CiFolderOn } from "react-icons/ci";
 
 type Props = {
   folder: FolderNode
@@ -12,11 +12,13 @@ const Folder = ({ folder }: Props) => {
   }
   
   const style = {
-    marginLeft: folder.depth * 20
+    marginLeft: folder.depth * 20,
+    opacity: folder.isDragging ? 0.5 : 1,
+    transition: '0.1s ease-in',
   }
 
-  return <div className={`flex gap-1 items-center`} style={style}>
-    <ArchiveIcon width={16} height={16} />
+  return <div className={`pl-2 flex gap-1 items-center text-sm`} style={style}>
+    <CiFolderOn width={12} height={12} />
     {folder.folderName}
   </div>;
 };

@@ -53,16 +53,16 @@ export const mapDtoToRoot = (data: NotesDto): FolderNode => {
   return root;
 };
 
-export const assignDepth = (node: TreeNode, depth: number) => {
+export const assignProperties = (node: TreeNode, depth: number) => {
   node.depth = depth;
+  node.isDragging = false;
   if (node.type === NoteFileSystemType.FOLDER) {
     const folderNode = node as FolderNode;
     folderNode.children.forEach(child => {
-      assignDepth(child, depth + 1);
+      assignProperties(child, depth + 1);
     });
   }
 };
-
 
 export const findFolderDfs = (node: FolderNode, id: string): FolderNode | undefined => {
   if (node.id === id) return node;
@@ -98,7 +98,6 @@ export const findNoteOrFolder = (node: FolderNode, id: string, type: NoteFileSys
   }
 };
 
-
 export const findAllChildrenIds = (node: TreeNode, children: Set<string>) => {
   if (node.type == NoteFileSystemType.FOLDER) {
     const folderNode = node as FolderNode;
@@ -133,5 +132,65 @@ export const flatTreeInAlphabeticalOrder = (node: TreeNode, items: TreeNode[]) =
   }
   return items;
 };
+
+
+export const mapFolderNodeToDto = (node: FolderNode) => {
+  return {
+    id: node.id,
+    type: node.type,
+    parentId: node.parentId,
+    rootId: node.rootId,
+    folderName: node.folderName,
+    children: node.children.map(child => child.id)
+  }
+}
+
+export const mapNoteNodeToDto = (node: NoteNode) => {
+  return {
+    id: node.id,
+    type: node.type,
+    parentId: node.parentId,
+    rootId: node.rootId,
+    fileName: node.fileName,
+    description: node.description,
+    body: node.body,
+  }
+}
+
+export const mapToDto = (node: TreeNode) => {
+  if (node.type === NoteFileSystemType.FOLDER) {
+    return mapFolderNodeToDto(node as FolderNode);
+  }
+  if (node.type === NoteFileSystemType.NOTE) {
+    return mapNoteNodeToDto(node as NoteNode);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

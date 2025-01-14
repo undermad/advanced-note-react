@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DragOverlay } from "@dnd-kit/core";
 import { NoteFileSystemType, TreeNode } from "../NoteFileSystemTypes.ts";
-import { ArchiveIcon, FileIcon } from "@radix-ui/react-icons";
+import { CiFileOn, CiFolderOn } from "react-icons/ci";
 
 type Props = {
   activeNode: TreeNode | null;
@@ -33,8 +33,8 @@ const DndOverlay = ({ activeNode }: Props) => {
     height: "16px",
     pointerEvents: "none",
   }}>
-    {activeNode.type === NoteFileSystemType.FOLDER && <ArchiveIcon width={16} height={16} />}
-    {activeNode.type === NoteFileSystemType.NOTE && <FileIcon width={16} height={16} />}
+    {activeNode.type === NoteFileSystemType.FOLDER && <CiFolderOn width={12} height={12} />}
+    {activeNode.type === NoteFileSystemType.NOTE && <CiFileOn width={12} height={12} />}
   </DragOverlay>;
 };
 
