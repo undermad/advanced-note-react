@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { DragOverlay } from "@dnd-kit/core";
-import { NoteFileSystemType, TreeNode } from "../NoteFileSystemTypes.ts";
+import { Extension, FileTreeNode } from "../NoteFileSystemTypes.ts";
 import { CiFileOn, CiFolderOn } from "react-icons/ci";
 
 type Props = {
-  activeNode: TreeNode | null;
+  activeNode: FileTreeNode | null;
 }
 
 const DndOverlay = ({ activeNode }: Props) => {
@@ -31,10 +31,10 @@ const DndOverlay = ({ activeNode }: Props) => {
     transform: "translate(-50%, -50%)",
     width: "16px",
     height: "16px",
-    pointerEvents: "none",
+    pointerEvents: "none"
   }}>
-    {activeNode.type === NoteFileSystemType.FOLDER && <CiFolderOn width={12} height={12} />}
-    {activeNode.type === NoteFileSystemType.NOTE && <CiFileOn width={12} height={12} />}
+    {activeNode.extension === Extension.FOLDER && <CiFolderOn width={12} height={12} />}
+    {activeNode.extension == Extension.TXT && <CiFileOn width={12} height={12} />}
   </DragOverlay>;
 };
 

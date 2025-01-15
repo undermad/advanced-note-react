@@ -1,19 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { FolderNode, NoteFileSystemType, NotesDto, TreeNode } from "./NoteFileSystemTypes.ts";
+import { FileNode, FileTreeNode } from "./NoteFileSystemTypes.ts";
 import axios from "axios";
 import { RootState } from "../../state/State.ts";
-import {
-  assignProperties,
-  findFolderDfs,
-  findNoteOrFolder,
-  flatTreeInAlphabeticalOrder,
-  mapDtoToRoot, mapToDto
-} from "./NotesFileSystemUtils.ts";
 import { Status } from "../../reusable/types/Statuses.ts";
+import { mapFilesToTreeNodes, sortFolderThenFileAlphabetically } from "./Utils.ts";
 
 export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: string) => {
   try {
-    const response = await axios.get(`http://localhost:8080/api/v1/notes/${rootId}`);
+    const response = await axios.get(`http://localhost:8080/api/v1/files/${rootId}`);
+    console.log(response.data)
     return response.data;
   } catch (error) {
     return Promise.reject(error);
@@ -22,101 +17,91 @@ export const fetchNotes = createAsyncThunk("notes/fetchNotes", async (rootId: st
 
 
 export type MoveNodesAsyncPayload = {
-  active: TreeNode,
-  over: TreeNode
+  active: FileTreeNode,
+  over: FileTreeNode,
 }
 
-export const moveNodesAsync = createAsyncThunk("notes/moveNodes", async (payload: MoveNodesAsyncPayload) => {
-  // try {
-  //
-  //   const activeNode = mapToDto(payload.active);
-  //   const overNode = mapToDto(payload.over);
-  //
-  //   const response = await axios.patch(`http://localhost:8080/api/v1/notes`, {
-  //     active: activeNode,
-  //     over: overNode
-  //   });
-  //   return response.data;
-  // } catch (error) {
-  //   return Promise.reject(error);
-  // }
+export const moveNodesAsync = createAsyncThunk("notes/moveNodes", async (payload: MoveNodesAsyncPayload, thunkAPI) => {
+  try {
+
+    const state = thunkAPI.getState() as RootState;
+
+    const { active, over } = payload;
+
+    if (!active.parentId) return;
+
+    const parentNode = state.files.files.find(file => file.id === active.parentId)!;
+    const activeNode = state.files.files.find(file => file.id === active.id);
+    const overNode = state.files.files.find(file => file.id === over.id);
+    if (!parentNode || !activeNode || !overNode || overNode.depth === undefined) return;
+
+    if (!overNode.children) return;
+
+    const response = await axios.patch(`http://localhost:8080/api/v1/files`, {
+      over: {
+        ...overNode,
+        children: [...overNode.children, activeNode.id]
+      } as FileNode,
+      parent: {
+        ...parentNode,
+        children: parentNode.children?.filter(child => child !== activeNode.id)
+      } as FileNode
+    });
+
+    return {
+      data: response.data,
+      active: active,
+      over: over
+    };
+  } catch (error) {
+    return Promise.reject(error);
+  }
 });
 
+export type PatchNotesResult = {
+  data: string,
+  active: FileTreeNode,
+  over: FileTreeNode,
+}
 
-export interface NotesState {
-  notes: TreeNode[],
-  root: FolderNode
+
+export interface FilesState {
+  files: FileTreeNode[],
   status: Status,
   error: string | null,
 }
 
-const initialState: NotesState = {
-  notes: [],
-  root: {
-    id: "",
-    type: NoteFileSystemType.FOLDER,
-    parentId: null,
-    rootId: undefined,
-    depth: undefined,
-    folderName: "Root",
-    isDragging: false,
-    children: []
-  },
+const initialState: FilesState = {
+  files: [],
   status: Status.IDLE,
   error: null
 };
 
-const notesSlice = createSlice({
-  name: "notes",
+const filesSlice = createSlice({
+  name: "files",
   initialState: initialState,
   reducers: {
-    moveNode: (state, action: PayloadAction<{
-      active: TreeNode,
-      over: FolderNode,
-    }>) => {
-      const { active, over } = action.payload;
-
-      if (!active.parentId) return;
-
-      const parentNode = findFolderDfs(state.root, active.parentId);
-      const activeNode = findNoteOrFolder(state.root, active.id, active.type);
-      const overNode = findFolderDfs(state.root, over.id);
-      if (!parentNode || !activeNode || !overNode || overNode.depth === undefined) return;
-
-      parentNode.children = parentNode.children.filter(child => child.id !== active.id);
-
-      const updatedActiveNode = {
-        ...activeNode,
-        parentId: overNode.id,
-        depth: overNode.depth + 1
-      };
-
-      assignProperties(updatedActiveNode, updatedActiveNode.depth);
-      overNode.children = [...overNode.children, updatedActiveNode];
-      
-      state.notes = flatTreeInAlphabeticalOrder(state.root, []);
-    },
-    updateDragging: (state, action: PayloadAction<{ nodeId: string, isDragging: boolean, }>) => {
-      const node = state.notes.find(note => note.id === action.payload.nodeId)!;
-      node.isDragging = action.payload.isDragging;
-    }
+    // updateDragging: (state, action: PayloadAction<{ nodeId: string, isDragging: boolean, }>) => {
+    //   const node = state.notes.find(note => note.id === action.payload.nodeId)!;
+    //   node.isDragging = action.payload.isDragging;
+    // }
   },
   extraReducers(builder) {
     builder
+
+
       .addCase(fetchNotes.pending, (state) => {
         state.status = Status.LOADING;
       })
-      .addCase(fetchNotes.fulfilled, (state, action: PayloadAction<NotesDto>) => {
+      .addCase(fetchNotes.fulfilled, (state, action: PayloadAction<FileNode[]>) => {
         state.status = Status.SUCCEEDED;
-        const root = mapDtoToRoot(action.payload);
-        assignProperties(root, 0);
-        state.root = root;
-        state.notes = flatTreeInAlphabeticalOrder(root, []);
+        state.files = sortFolderThenFileAlphabetically(mapFilesToTreeNodes(action.payload));
       })
       .addCase(fetchNotes.rejected, (state, action) => {
         state.status = Status.FAILED;
         state.error = action.error.message || "Failed to fetch notes";
       })
+
 
       .addCase(moveNodesAsync.pending, (state) => {
         state.status = Status.LOADING;
@@ -125,18 +110,59 @@ const notesSlice = createSlice({
         state.status = Status.FAILED;
         state.error = action.error.message || "Failed to move data";
       })
-      .addCase(moveNodesAsync.fulfilled, (state, action: PayloadAction<string>) => {
+      .addCase(moveNodesAsync.fulfilled, (state, action: PayloadAction<PatchNotesResult>) => {
         state.status = Status.SUCCEEDED;
-        console.log(action.payload);
+
+        const { active, over } = action.payload;
+        console.log(action, over);
+
+        if (!active.parentId) return;
+
+        const parentNode = state.files.find(file => file.id === active.parentId)!;
+        const activeNode = state.files.find(file => file.id === active.id);
+        const overNode = state.files.find(file => file.id === over.id);
+        if (!parentNode || !activeNode || !overNode || overNode.depth === undefined) return;
+
+
+        // update parent children
+        parentNode.children = parentNode.children?.filter(childId => childId !== active.id);
+
+        const updatedParentNode = {
+          ...parentNode,
+          children: parentNode.children?.filter(childId => childId !== active.id)
+        };
+
+        const newState = state.files.map(file => {
+          if (file.id === parentNode.id) {
+            return {
+              ...parentNode,
+              children: parentNode.children?.filter(childId => childId !== active.id)
+            };
+          }
+          if (!overNode.children) throw new Error("Over node children is undefined.");
+          if (file.id === overNode.id) {
+            return {
+              ...overNode,
+              children: [...overNode.children, activeNode.id]
+            };
+          }
+
+          return file;
+        });
+        
+        
+        state.files = sortFolderThenFileAlphabetically(newState);
+
+
       });
   }
 });
 
 
-export const selectAllNotes = (state: RootState) => state.notes;
-export const selectNotesStatus = (state: RootState) => state.notes.status;
-export const selectNotesError = (state: RootState) => state.notes.error;
+export const selectAllFiles = (state: RootState) => state.files.files;
+export const selectNotesStatus = (state: RootState) => state.files.status;
+export const selectNotesError = (state: RootState) => state.files.error;
 
-export const { moveNode, updateDragging } = notesSlice.actions;
+export const { updateDragging } = filesSlice.actions;
 
-export default notesSlice.reducer;
+export default filesSlice.reducer;

@@ -24,6 +24,27 @@ export type NoteNode = TreeNode & {
   body: string,
 }
 
+export type FileNode = {
+  id: string,
+  rootId: string,
+  isFolder: boolean,
+  name: string,
+  children: string[] | undefined,
+  fileId: string | undefined, 
+  extension: Extension
+} 
+
+export enum Extension {
+  FOLDER = 'FOLDER',
+  TXT = 'TXT',
+  ROOT = 'ROOT',
+}
+
+export type FileTreeNode = {
+  depth: number | undefined,
+  parentId: string | undefined,
+} & FileNode;
+
 
 
 export type NotesDto = {

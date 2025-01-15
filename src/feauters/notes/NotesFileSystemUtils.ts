@@ -1,4 +1,12 @@
-import { FolderNode, NoteFileSystemType, NoteNode, NotesDto, TreeNode } from "./NoteFileSystemTypes.ts";
+import {
+  FileNode,
+  FileTreeNode,
+  FolderNode,
+  NoteFileSystemType,
+  NoteNode,
+  NotesDto,
+  TreeNode
+} from "./NoteFileSystemTypes.ts";
 
 export const sortFoldersOnTop = (folder: FolderNode): FolderNode => {
   folder.children.sort((a, b) => {
@@ -19,6 +27,9 @@ export const sortFoldersOnTop = (folder: FolderNode): FolderNode => {
 
   return folder;
 };
+
+
+
 
 export const mapDtoToRoot = (data: NotesDto): FolderNode => {
   const foldersMap = new Map<string, FolderNode>;
@@ -43,6 +54,7 @@ export const mapDtoToRoot = (data: NotesDto): FolderNode => {
     });
   });
 
+  console.log(data)
   const rootId = data.folders.find(folder => folder.parentId === null)?.id;
   if (!rootId) throw new Error("Can not find root");
 
@@ -98,16 +110,6 @@ export const findNoteOrFolder = (node: FolderNode, id: string, type: NoteFileSys
   }
 };
 
-export const findAllChildrenIds = (node: TreeNode, children: Set<string>) => {
-  if (node.type == NoteFileSystemType.FOLDER) {
-    const folderNode = node as FolderNode;
-    folderNode.children.forEach((child) => {
-      children.add(child.id);
-      findAllChildrenIds(child, children);
-    });
-  }
-  return children;
-};
 
 export const flatTreeInAlphabeticalOrder = (node: TreeNode, items: TreeNode[]) => {
   items.push(node);
@@ -134,37 +136,18 @@ export const flatTreeInAlphabeticalOrder = (node: TreeNode, items: TreeNode[]) =
 };
 
 
-export const mapFolderNodeToDto = (node: FolderNode) => {
+export const mapFileTreeNodeToFileNode = (node: FileTreeNode) => {
   return {
     id: node.id,
-    type: node.type,
-    parentId: node.parentId,
     rootId: node.rootId,
-    folderName: node.folderName,
-    children: node.children.map(child => child.id)
-  }
+    isFolder: node.isFolder,
+    name: node.name,
+    children: node.children,
+    fileId: node.fileId,
+    extension: node.extension,
+  } as FileNode
 }
 
-export const mapNoteNodeToDto = (node: NoteNode) => {
-  return {
-    id: node.id,
-    type: node.type,
-    parentId: node.parentId,
-    rootId: node.rootId,
-    fileName: node.fileName,
-    description: node.description,
-    body: node.body,
-  }
-}
-
-export const mapToDto = (node: TreeNode) => {
-  if (node.type === NoteFileSystemType.FOLDER) {
-    return mapFolderNodeToDto(node as FolderNode);
-  }
-  if (node.type === NoteFileSystemType.NOTE) {
-    return mapNoteNodeToDto(node as NoteNode);
-  }
-}
 
 
 

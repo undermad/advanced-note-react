@@ -1,11 +1,11 @@
-import { FolderNode, NoteFileSystemType, NoteNode, TreeNode } from "../NoteFileSystemTypes.ts";
+import { FileTreeNode } from "../NoteFileSystemTypes.ts";
 import Folder from "../ui/Folder.tsx";
 import Note from "../ui/Note.tsx";
 import Droppable from "../../../reusable/types/Droppable.tsx";
 import Draggable from "../../../reusable/types/Draggable.tsx";
 
 type Props = {
-  items: TreeNode[],
+  items: FileTreeNode[],
 }
 
 const TreeContent = ({ items }: Props) => {
@@ -15,9 +15,10 @@ const TreeContent = ({ items }: Props) => {
   </>;
 };
 
-const renderChildren = (nodes: TreeNode[]) => {
-  return nodes.map((node: TreeNode) => {
-    if (node.type === NoteFileSystemType.FOLDER) {
+const renderChildren = (nodes: FileTreeNode[]) => {
+
+  return nodes.map((node: FileTreeNode) => {
+    if (node.isFolder) {
       return <Droppable key={node.id} args={{ id: node.id, data: { accepts: ["FolderType", "NoteType"] } }}>
         <Draggable
           args={{
@@ -27,12 +28,12 @@ const renderChildren = (nodes: TreeNode[]) => {
             }
           }}
           key={node.id}>
-          <Folder folder={node as FolderNode} />
+          <Folder folder={node} />
         </Draggable>
       </Droppable>;
-
     }
-    if (node.type === NoteFileSystemType.NOTE) {
+    
+    if (!node.isFolder) {
       return <Draggable
         key={node.id}
         args={{
@@ -42,7 +43,7 @@ const renderChildren = (nodes: TreeNode[]) => {
             type: "NoteType"
           }
         }}>
-        <Note note={node as NoteNode} />
+        <Note note={node} />
       </Draggable>;
     }
 
