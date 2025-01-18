@@ -3,7 +3,7 @@ import TreeComponent from "./TreeComponent.tsx";
 import { AppearAnimation } from "../../../reusable/animation/AppearAnimation.tsx";
 
 const Tree = () => {
-  const { data, isLoading } = useGetFilesQuery({ rootId: "642ff1d0-f923-4417-a8ea-4cbc7d52e18b" });
+  const { data, isLoading } = useGetFilesQuery({ rootId: "cab4ce86-bb08-4262-a607-255b96bd502c" });
 
   if (isLoading) {
     return <div>Loading...</div>;

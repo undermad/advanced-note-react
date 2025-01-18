@@ -6,13 +6,15 @@ export const mapFilesToTreeNodes = (payload: FileNode[]) => {
       ...file,
       depth: undefined,
       parentId: undefined,
-      collapsed: undefined
+      collapsed: undefined,
+      visible: true
     } as FileTreeNode;
   });
 
   const idMap = new Map<string, FileTreeNode>(files.map(file => [file.id, file]));
   const root = files.find(file => file.extension === Extension.ROOT)!;
   assignDepthAndParent(root.id, 0, idMap);
+  sortFolderThenFileAlphabetically(root.id, idMap);
   initiallyCollapseChildren(root.id, idMap);
   return Array.from(idMap.values());
 };
@@ -43,9 +45,8 @@ export const assignDepthAndParent = (fileId: string, depth: number, idToFile: Ma
   }
 };
 
-export const sortFolderThenFileAlphabetically = (files: FileTreeNode[]) => {
-  const idMap = new Map<string, FileTreeNode>(files.map(file => [file.id, file]));
-  const root = files.find(file => file.extension === Extension.ROOT)!;
+export const sortFolderThenFileAlphabetically = (rootId: string, idMap: Map<string, FileTreeNode>) => {
+  const root = idMap.get(rootId)!;
   return sortFiles(root, [], idMap);
 };
 
@@ -67,47 +68,41 @@ const sortFiles = (file: FileTreeNode, result: FileTreeNode[], idMap: Map<string
   return result;
 };
 
-export const findAllChildrenIds = (node: FileTreeNode, children: Set<string>, files: Map<string, FileTreeNode>) => {
+export const findAllChildrenIds = (node: FileTreeNode, children: Set<string>, idMap: Map<string, FileTreeNode>) => {
   if (node.isFolder && node.children) {
     node.children.forEach(childId => {
       children.add(childId);
-      findAllChildrenIds(files.get(childId)!, children, files);
+      findAllChildrenIds(idMap.get(childId)!, children, idMap);
     });
   }
   return children;
 };
 
-export const unCollapseChildren = (folderId: string, files: FileTreeNode[]) => {
-  const idMap = new Map<string, FileTreeNode>(files.map(file => [file.id, file]));
+export const unCollapseChildren = (folderId: string, idMap: Map<string, FileTreeNode>) => {
   const currentFolder = idMap.get(folderId)!;
   currentFolder.collapsed = false;
   currentFolder.children?.forEach(childId => {
     const child = idMap.get(childId)!;
     child.visible = true;
   });
-  return Array.from(idMap.values());
+  return sortFolderThenFileAlphabetically(currentFolder.rootId, idMap);
 };
 
 
-export const collapseChildren = (folderId: string, files: FileTreeNode[]) => {
-
-  const idMap = new Map<string, FileTreeNode>(files.map(file => [file.id, file]));
-
+export const collapseChildren = (folderId: string, idMap: Map<string,  FileTreeNode>) => {
   const currentFolder = idMap.get(folderId)!;
   if (!currentFolder.children) return;
   currentFolder.collapsed = true;
   currentFolder.children.forEach(childId => {
     setAllToInvisible(idMap.get(childId)!, idMap);
   });
-  return Array.from(idMap.values());
+  return sortFolderThenFileAlphabetically(currentFolder.rootId, idMap);
 };
 
 const setAllToInvisible = (file: FileTreeNode, idMap: Map<string, FileTreeNode>) => {
   file.visible = false;
   if (file.isFolder) {
     file.collapsed = true;
-  }
-  if (file.isFolder) {
     file.children?.forEach(childId => {
       const child = idMap.get(childId)!;
       setAllToInvisible(child, idMap);

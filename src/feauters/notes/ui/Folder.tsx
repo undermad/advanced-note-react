@@ -13,7 +13,7 @@ type Props = {
 const Folder = ({ folder }: Props) => {
 
   const dispatch = useDispatch();
-  
+
 
   const [collapsed, setCollapsed] = useState(folder.collapsed);
 
@@ -39,23 +39,28 @@ const Folder = ({ folder }: Props) => {
     toggleRotation();
   };
 
-  console.log(collapsed)
+  console.log(collapsed);
 
   return <>
-    <div className={"flex gap-1 items-center text-sm"}>
+    <div
+      onClick={handleCollapseClick}
+      className={"flex gap-1 items-center text-sm "}>
 
-      <div className={`pl-2 flex gap-1 items-center text-sm`} style={style}>
-        <motion.div
-          initial={{
-            rotate: collapsed ? -90 : 0,
-          }}
-          style={{ display: "inline-block", cursor: "pointer" }}
-          animate={{ rotate: collapsed ? -90 : 0 }}
-          transition={{ duration: 0.1, ease: "easeInOut" }}
-          onClick={handleCollapseClick}>
-          <IoIosArrowDown width={12} height={12} />
-        </motion.div>
-        <CiFolderOn width={12} height={12} />
+      <div className={`pl-2 flex gap-1 items-center text-sm relative`} style={style}>
+        {folder.children && folder.children.length > 0 ?
+          <motion.div
+            initial={{
+              rotate: collapsed ? -90 : 0
+            }}
+            style={{ display: "inline-block", cursor: "pointer" }}
+            animate={{ rotate: collapsed ? -90 : 0 }}
+            transition={{ duration: 0.1, ease: "easeInOut" }}
+            className={"absolute -left-[3px] "}
+          >
+            <IoIosArrowDown size={8} />
+          </motion.div>
+          : <></>}
+        <CiFolderOn size={14} />
         {folder.name}
       </div>
 

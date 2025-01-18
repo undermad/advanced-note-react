@@ -30,7 +30,7 @@ const TreeComponent = ({ files }: Props) => {
       ...downCastToFileNode(parent),
       children: parent.children?.filter(childId => childId !== active.id)
     };
-    updateFileMutation({ files: [updatedOver, updatedParent] });
+    updateFileMutation({ updatedOverNode: updatedOver, updatedParentNode: updatedParent });
   };
 
   const handleOnDragStart = (event: DragStartEvent) => {
@@ -57,8 +57,6 @@ const TreeComponent = ({ files }: Props) => {
     setActiveNode(null);
   }
   
-
-
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
       distance: 5
