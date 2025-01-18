@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Extension, FileNode, FileTreeNode } from "./NoteFileSystemTypes.ts";
+import { FileNode, FileTreeNode } from "./NoteFileSystemTypes.ts";
 import {
   assignDepthAndParent,
   collapseChildren,
@@ -7,6 +7,7 @@ import {
   sortFolderThenFileAlphabetically,
   unCollapseChildren
 } from "./Utils.ts";
+import { AppDispatch } from "../../state/State.ts";
 
 
 const URL = "http://localhost:8080/api/v1";
@@ -30,21 +31,21 @@ export const filesApiSlice = createApi({
         method: "PATCH",
         body: { files: files }
       }),
-      invalidatesTags: [{ type: "files" }],
+      
+      //change this call to be moveFolders instead of simple patch
+      //this way you can extract the active, over etc to perform state update accordingly
+      //fix bug that keep nodes visible after dropping them into collapsed folder
       onQueryStarted: async ({ files }, { dispatch, queryFulfilled }) => {
         const patchResult = dispatch(
           filesApiSlice.util.updateQueryData(
             "getFiles",
             { rootId: files[0].rootId },
             (draft) => {
-
               const idMap = new Map<string, FileTreeNode>(draft.map(file => [file.id, file]));
-
               files.forEach(updatedFile => {
                 const fileToUpdate = idMap.get(updatedFile.id)!;
                 Object.assign(fileToUpdate, updatedFile);
               });
-
               assignDepthAndParent(files[0].rootId, 0, idMap);
               const updatedState = sortFolderThenFileAlphabetically(Array.from(idMap.values()));
               draft.splice(0, draft.length, ...updatedState);
@@ -53,7 +54,8 @@ export const filesApiSlice = createApi({
         );
         try {
           await queryFulfilled;
-        } catch {
+        } catch(error){
+          console.log(error)
           patchResult.undo();
         }
       }
@@ -64,7 +66,7 @@ export const filesApiSlice = createApi({
 });
 
 export const clientFilesAction = {
-  collapseFolder: (dispatch, folderId: string, rootId: string) => {
+  collapseFolder: (dispatch: AppDispatch, folderId: string, rootId: string) => {
     dispatch(
       filesApiSlice.util.updateQueryData("getFiles", { rootId: rootId }, (draft) => {
         const updatedState = collapseChildren(folderId, draft)!;
@@ -72,7 +74,7 @@ export const clientFilesAction = {
       })
     );
   },
-  unCollapseFolder: (dispatch, folderId: string, rootId: string) => {
+  unCollapseFolder: (dispatch: AppDispatch, folderId: string, rootId: string) => {
     dispatch(
       filesApiSlice.util.updateQueryData("getFiles", { rootId: rootId }, (draft) => {
         const updatedState = unCollapseChildren(folderId, draft);

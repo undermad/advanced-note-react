@@ -13,7 +13,7 @@ export const mapFilesToTreeNodes = (payload: FileNode[]) => {
   const idMap = new Map<string, FileTreeNode>(files.map(file => [file.id, file]));
   const root = files.find(file => file.extension === Extension.ROOT)!;
   assignDepthAndParent(root.id, 0, idMap);
-  // initiallyCollapseChildren(root.id, idMap);
+  initiallyCollapseChildren(root.id, idMap);
   return Array.from(idMap.values());
 };
 
