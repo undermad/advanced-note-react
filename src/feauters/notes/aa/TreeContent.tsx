@@ -6,21 +6,25 @@ import Draggable from "../../../reusable/types/Draggable.tsx";
 
 type Props = {
   items: FileTreeNode[],
+  isMutating: boolean,
 }
 
-const TreeContent = ({ items }: Props) => {
+const TreeContent = ({ items, isMutating }: Props) => {
 
   return <>
-    {items.length > 0 && renderChildren(items)}
+    {items.length > 0 && renderChildren(items, isMutating)}
   </>;
 };
 
-const renderChildren = (nodes: FileTreeNode[]) => {
+const renderChildren = (nodes: FileTreeNode[], isMutating: boolean) => {
 
   return nodes.map((node: FileTreeNode) => {
+    if (node.visible === false) return;
+
     if (node.isFolder) {
       return <Droppable key={node.id} args={{ id: node.id, data: { accepts: ["FolderType", "NoteType"] } }}>
         <Draggable
+          disabled={isMutating}
           args={{
             id: node.id, data: {
               parentId: node.parentId,
@@ -32,9 +36,10 @@ const renderChildren = (nodes: FileTreeNode[]) => {
         </Draggable>
       </Droppable>;
     }
-    
+
     if (!node.isFolder) {
       return <Draggable
+        disabled={isMutating}
         key={node.id}
         args={{
           id: node.id,

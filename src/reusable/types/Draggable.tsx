@@ -3,16 +3,25 @@ import React from "react";
 
 type Props = {
   children: React.ReactNode,
-  element?: React.ElementType,
-  args: UseDraggableArguments
+  args: UseDraggableArguments,
+  disabled: boolean,
 }
 
-const Draggable = ({ children, element: Element = "div", args }: Props) => {
+const Draggable = ({ children, args, disabled }: Props) => {
 
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable(args);
-  
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable(args);
 
-  return <Element ref={setNodeRef} {...attributes} {...listeners} >{children}</Element>;
+
+  return <div
+    style={{
+      opacity: isDragging ? 0.5 : 1,
+    }}
+    ref={setNodeRef}
+    {...(disabled ? {} : attributes)}
+    {...(disabled ? {} : listeners)}
+  >
+    {children}
+  </div>;
 };
 
 export default Draggable;

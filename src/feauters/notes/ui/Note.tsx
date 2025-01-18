@@ -13,8 +13,7 @@ const Note = ({ note }: NoteProps) => {
 
   const style = {
     marginLeft: note.depth * 20,
-    // opacity: note.isDragging ? 0.5 : 1,
-    transition: '0.1s ease-in',
+    // transition: '0.1s ease-in',
   }
 
   return <div className={`pl-2 flex gap-1 items-center text-sm`} style={style}>

@@ -1,9 +1,12 @@
-import TreeComponent from "../feauters/notes/aa/TreeComponent.tsx";
+import Tree from "../feauters/notes/aa/Tree.tsx";
 
 const Home = () => {
 
   return <div className={"mt-10 ml-5"}>
-    <TreeComponent/>
+    
+    <Tree/>
+    
+    {/*<TreeComponent/>*/}
   </div>;
 };
 

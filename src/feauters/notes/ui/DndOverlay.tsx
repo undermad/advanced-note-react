@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { DragOverlay } from "@dnd-kit/core";
+import { DragOverlay, DropAnimation } from "@dnd-kit/core";
 import { Extension, FileTreeNode } from "../NoteFileSystemTypes.ts";
 import { CiFileOn, CiFolderOn } from "react-icons/ci";
+import useMousePosition from "../../../reusable/hooks/mouse/useMousePosition.ts";
 
 type Props = {
   activeNode: FileTreeNode | null;
@@ -9,30 +9,42 @@ type Props = {
 
 const DndOverlay = ({ activeNode }: Props) => {
 
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const {x, y} = useMousePosition();
 
-  const handleMouseMove = (event: MouseEvent) => {
-    setMousePosition({ x: event.clientX, y: event.clientY });
+  const dropAnimation: DropAnimation = {
+    duration: 300,
+    easing: "ease-in-out",
+    keyframes: () => {
+      return [
+        {
+          transform: `translate(-50%, -50%) scale(1.0)`
+        },
+        {
+          transform: `translate(-50%, -50%) scale(1.1)`
+        },
+        {
+          transform: `translate(-50%, -50%) scale(0)`
+        }
+      ];
+    }
   };
-
-  useEffect(() => {
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  if (!activeNode) {
-    return null;
+  
+  if (activeNode === null) {
+    return;
   }
-
-  return <DragOverlay style={{
-    position: "fixed",
-    left: mousePosition.x,
-    top: mousePosition.y,
-    transform: "translate(-50%, -50%)",
-    width: "16px",
-    height: "16px",
-    pointerEvents: "none"
-  }}>
+  
+  return <DragOverlay
+    dropAnimation={dropAnimation}
+    style={{
+      position: "fixed",
+      left: x,
+      top: y,
+      transform: "translate(-50%, -50%)",
+      width: "12px",
+      height: "12px",
+      pointerEvents: "none"
+    }}
+  >
     {activeNode.extension === Extension.FOLDER && <CiFolderOn width={12} height={12} />}
     {activeNode.extension == Extension.TXT && <CiFileOn width={12} height={12} />}
   </DragOverlay>;

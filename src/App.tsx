@@ -1,8 +1,11 @@
 import { Route, Routes } from "react-router";
 import Home from "./pages/Home.tsx";
 import About from "./pages/About.tsx";
+import useMouseTracker from "./reusable/hooks/mouse/useMouseTracker.ts";
 
 function App() {
+  
+  useMouseTracker();
 
   return (
     <Routes>
@@ -15,11 +18,6 @@ function App() {
       {/*  <Route path="register" element={<Register />} />*/}
       {/*</Route>*/}
 
-      {/*<Route path="concerts">*/}
-      {/*  <Route index element={<ConcertsHome />} />*/}
-      {/*  <Route path=":city" element={<City />} />*/}
-      {/*  <Route path="trending" element={<Trending />} />*/}
-      {/*</Route>*/}
     </Routes>
   );
 }
