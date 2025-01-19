@@ -13,11 +13,11 @@ const Note = ({ note }: NoteProps) => {
 
   const style = {
     marginLeft: note.depth * 20,
-    // transition: '0.1s ease-in',
+    transition: '0.1s ease-in',
   }
 
-  return <div className={`pl-2 flex gap-1 items-center text-sm`} style={style}>
-    <CiFileOn width={12} height={12} />
+  return <div className={`pl-2 flex gap-1 items-center text-lg select-none`} style={style}>
+    <CiFileOn size={16} />
     {note.name}
   </div>;
 };

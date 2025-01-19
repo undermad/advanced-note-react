@@ -1,0 +1,1 @@
+fix bug that select multiple files in the tree always from last selected

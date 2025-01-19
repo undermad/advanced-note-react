@@ -1,7 +1,7 @@
 import { DragOverlay, DropAnimation } from "@dnd-kit/core";
 import { Extension, FileTreeNode } from "../NoteFileSystemTypes.ts";
 import { CiFileOn, CiFolderOn } from "react-icons/ci";
-import useMousePosition from "../../../reusable/hooks/mouse/useMousePosition.ts";
+import useMousePosition from "../../../reusable/mouse/useMousePosition.ts";
 
 type Props = {
   activeNode: FileTreeNode | null;

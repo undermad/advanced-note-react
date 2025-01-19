@@ -1,11 +1,13 @@
 import { Route, Routes } from "react-router";
 import Home from "./pages/Home.tsx";
 import About from "./pages/About.tsx";
-import useMouseTracker from "./reusable/hooks/mouse/useMouseTracker.ts";
+import useMouseTracker from "./reusable/mouse/useMouseTracker.ts";
+import useKeyboardTracker from "./reusable/keyboard/useKeyboardTracker.ts";
 
 function App() {
   
   useMouseTracker();
+  useKeyboardTracker();
 
   return (
     <Routes>

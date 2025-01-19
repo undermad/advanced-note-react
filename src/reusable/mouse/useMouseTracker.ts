@@ -25,6 +25,7 @@ const useMouseTracker = () => {
       }
     };
 
+    
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove);
     window.addEventListener('touchstart', handleTouchClick);

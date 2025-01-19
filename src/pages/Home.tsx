@@ -1,4 +1,4 @@
-import Tree from "../feauters/notes/aa/Tree.tsx";
+import Tree from "../feauters/notes/tree/Tree.tsx";
 
 const Home = () => {
 

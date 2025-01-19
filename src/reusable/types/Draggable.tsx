@@ -13,8 +13,11 @@ const Draggable = ({ children, args, disabled }: Props) => {
 
 
   return <div
+    className={"cursor-default"}
     style={{
       opacity: isDragging ? 0.5 : 1,
+      backgroundColor: isDragging ? "rgba(0, 0, 255, 0.1)" : "transparent",
+      transition: "all 0.1s ease"
     }}
     ref={setNodeRef}
     {...(disabled ? {} : attributes)}
