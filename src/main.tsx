@@ -6,11 +6,12 @@ import { Provider } from "react-redux";
 import { store } from "./state/State.ts";
 
 
+
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/*" element={<App />} />
       </Routes>
     </BrowserRouter>
   </Provider>
